@@ -18,6 +18,9 @@ type ASTVisitor interface {
 	VisitOther(n *Other)
 	VisitStarExpr(n *StarExpr)
 	VisitNonStarExpr(n *NonStarExpr)
+	VisitAliasedTableExpr(*AliasedTableExpr)
+	VisitParenTableExpr(*ParenTableExpr)
+	VisitJoinTableExpr(*JoinTableExpr)
 }
 
 // might not need the accept methods...
@@ -53,5 +56,18 @@ func SelectExprAccept(n SelectExpr, v ASTVisitor) {
 		v.VisitNonStarExpr(n.(*NonStarExpr))
 	default:
 		log.Printf("SelectExprAccept TODO %T", n)
+	}
+}
+
+func TableExprAccept(n TableExpr, v ASTVisitor) {
+	switch n.(type) {
+	case *AliasedTableExpr:
+		v.VisitAliasedTableExpr(n.(*AliasedTableExpr))
+	case *ParenTableExpr:
+		v.VisitParenTableExpr(n.(*ParenTableExpr))
+	case *JoinTableExpr:
+		v.VisitJoinTableExpr(n.(*JoinTableExpr))
+	default:
+		log.Printf("TableExprAccept TODO %T", n)
 	}
 }
