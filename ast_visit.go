@@ -21,6 +21,8 @@ type ASTVisitor interface {
 	VisitAliasedTableExpr(*AliasedTableExpr)
 	VisitParenTableExpr(*ParenTableExpr)
 	VisitJoinTableExpr(*JoinTableExpr)
+	VisitWhere(*Where)
+	VisitOrder(*Order)
 }
 
 // might not need the accept methods...
