@@ -16,13 +16,20 @@ type ASTVisitor interface {
 	VisitColumnDefinition(n *ColumnDefinition)
 	VisitCreateTable(n *CreateTable)
 	VisitOther(n *Other)
+	// SelectExpr
 	VisitStarExpr(n *StarExpr)
 	VisitNonStarExpr(n *NonStarExpr)
+	// TableExpr
 	VisitAliasedTableExpr(*AliasedTableExpr)
 	VisitParenTableExpr(*ParenTableExpr)
 	VisitJoinTableExpr(*JoinTableExpr)
 	VisitWhere(*Where)
 	VisitOrder(*Order)
+	VisitOrderBy(OrderBy)
+	VisitGroupBy(GroupBy)
+	VisitHaving(*Where)
+	// ValExpr
+	VisitStrVal(StrVal)
 }
 
 // might not need the accept methods...
@@ -72,4 +79,24 @@ func TableExprAccept(n TableExpr, v ASTVisitor) {
 	default:
 		log.Printf("TableExprAccept TODO %T", n)
 	}
+}
+
+func ValExprAccept(n ValExpr, v ASTVisitor) {
+	switch n.(type) {
+	case StrVal:
+		v.VisitStrVal(n.(StrVal))
+	default:
+		log.Printf("ValExprAccept TODO %T", n)
+	}
+	//func (NumVal) IValExpr()      {}
+	//func (ValArg) IValExpr()      {}
+	//func (*NullVal) IValExpr()    {}
+	//func (*ColName) IValExpr()    {}
+	//func (ValTuple) IValExpr()    {}
+	//func (*Subquery) IValExpr()   {}
+	//func (ListArg) IValExpr()     {}
+	//func (*BinaryExpr) IValExpr() {}
+	//func (*UnaryExpr) IValExpr()  {}
+	//func (*FuncExpr) IValExpr()   {}
+	//func (*CaseExpr) IValExpr()   {}
 }

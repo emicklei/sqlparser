@@ -10,7 +10,7 @@ func TestVisitSelect(t *testing.T) {
 	stat, _ := Parse(sql)
 	r := new(recorder)
 	StatementAccept(stat, r)
-	if got, want := fmt.Sprintf("%v", r.seen), "[Select StarExpr AliasedTableExpr Where Order]"; got != want {
+	if got, want := fmt.Sprintf("%v", r.seen), "[Select StarExpr AliasedTableExpr Where OrderBy Order]"; got != want {
 		t.Errorf("got %s want %s", got, want)
 	}
 }
@@ -27,14 +27,18 @@ func (r *recorder) VisitSelect(n *Select) {
 	for _, each := range n.From {
 		TableExprAccept(each, r)
 	}
-	r.VisitWhere(n.Where)
-	for _, each := range n.OrderBy {
-		r.VisitOrder(each)
+	if n.Where != nil {
+		r.VisitWhere(n.Where)
 	}
-	//	for _, each := range n.GroupBy {
-	//		r.VisitValExpr(each)
-	//	}
-	//n.Having
+	if len(n.OrderBy) > 0 {
+		r.VisitOrderBy(n.OrderBy)
+	}
+	if len(n.GroupBy) > 0 {
+		r.VisitGroupBy(n.GroupBy)
+	}
+	if n.Having != nil {
+		r.VisitHaving(n.Having)
+	}
 }
 func (r *recorder) VisitUnion(n *Union) {
 	r.seen = append(r.seen, "Union")
@@ -84,6 +88,26 @@ func (r *recorder) VisitJoinTableExpr(*JoinTableExpr) {
 func (r *recorder) VisitWhere(*Where) {
 	r.seen = append(r.seen, "Where")
 }
+func (r *recorder) VisitOrderBy(n OrderBy) {
+	r.seen = append(r.seen, "OrderBy")
+	for _, each := range n {
+		r.VisitOrder(each)
+	}
+}
 func (r *recorder) VisitOrder(*Order) {
 	r.seen = append(r.seen, "Order")
+}
+func (r *recorder) VisitGroupBy(n GroupBy) {
+	r.seen = append(r.seen, "GroupBy")
+	for _, each := range n {
+		ValExprAccept(each, r)
+	}
+}
+func (r *recorder) VisitHaving(*Where) {
+	r.seen = append(r.seen, "Having")
+}
+
+// ValExpr
+func (r *recorder) VisitStrVal(StrVal) {
+	r.seen = append(r.seen, "StrVal")
 }
